@@ -1,7 +1,28 @@
+import { exists } from 'https://deno.land/std@0.224.0/fs/mod.ts';
 import OpenAI from 'npm:openai';
 import { simpleGit } from 'npm:simple-git';
 
-const diff = await simpleGit().diff(['--staged', ...[':!*.lock']]);
+const getIgnoreFiles = async (currentDir: string): Promise<string[]> => {
+  const ignoreFilePath = `${currentDir}/.aicommitignore`;
+  const ignoreFileExists = await exists(ignoreFilePath);
+
+  if (!ignoreFileExists) {
+    return [];
+  }
+
+  const decoder = new TextDecoder('utf-8');
+  const data = await Deno.readFile(`${currentDir}/.aicommitignore`);
+  const lines = decoder
+    .decode(data)
+    .split('\n')
+    .filter((line) => line.trim() !== '');
+
+  return lines.map((line) => `:!${line}`);
+};
+
+const currentDir = Deno.cwd();
+const ignoreFiles = await getIgnoreFiles(currentDir);
+const diff = await simpleGit(currentDir).diff(['--staged', ...ignoreFiles]);
 
 const openai = new OpenAI({
   apiKey: Deno.env.get('OPEN_AI_API_KEY'),
