@@ -45,8 +45,8 @@ const completion = await openai.chat.completions.create({
         Craft a concise one line commit message that encapsulates all changes made,
         with an emphasis on the primary updates. The goal is to provide a clear and unified
         overview of the changes in a one single message, without diverging
-        into a list of commit per file change. Only give a single line commit message, 
-        without a description
+        into a list of commit per file change. Only give a single line, single sentence commit message, 
+        without a description. Be terse
         `,
     },
     {
